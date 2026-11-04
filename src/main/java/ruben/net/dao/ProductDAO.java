@@ -1,19 +1,41 @@
 package ruben.net.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ruben.net.model.Product;
+import ruben.net.util.ConnectionDB;
 
-public class ProductDAO {
+public class ProductDAO  {
 
-    public void insert(Product p) throws SQLException {
-        // TODO: INSERT INTO products
+    public static void insert(Product p) throws SQLException {
+        if (p.getName() == null || p.getName().isBlank()){
+            throw new SQLException("The product name is required!");
+        }
+        if (p.getPrice() <= 0) {
+            throw new SQLException("The product has to been uper to 0");
+        }
+        if (p.getStock() < 1){
+            throw new SQLException("The minimum stock is 1.");
+        }
+        String sql = "INSERT INTO Products (name, price, stock) VALUES (?, ?, ?)";
+        try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, p.getName());
+            ps.setDouble(2, p.getPrice());
+            ps.setInt(3, p.getStock());
+            ps.executeQuery();
+        }   
     }
 
     public List<Product> list() throws SQLException {
         // TODO: SELECT * FROM products
+        String sql = "SELECT * FROM Products";
+        
+
+
         return new ArrayList<>();
     }
 
