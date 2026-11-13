@@ -19,17 +19,15 @@ public class ProductDAO  {
         if (p.getPrice() <= 0) {
             throw new SQLException("The product has to been uper to 0");
         }
-        if (p.getStock() < 1){
-            throw new SQLException("The minimum stock is 1.");
+        if (p.getStock() < 0){
+            throw new SQLException("The stock cannot be negative.");
         }
         String sql = "INSERT INTO Products (name, price, stock) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, p.getName());
             ps.setDouble(2, p.getPrice());
             ps.setInt(3, p.getStock());
-            ps.executeQuery();
-        } catch (Exception e){
-            e.printStackTrace();
+            ps.executeUpdate();
         }
     }
 
@@ -64,8 +62,7 @@ public class ProductDAO  {
     }
 
     public static void update(Product p) throws SQLException {
-        String sql = "UPDATE Products SET name = ? price = ? stock = ? WHERE id = ?";
-        Product product = null;
+        String sql = "UPDATE Products SET name = ?, price = ?, stock = ? WHERE id = ?";
 
         if (p.getName() == null || p.getName().isBlank()){
             throw new SQLException("The product name is required!");
@@ -73,15 +70,19 @@ public class ProductDAO  {
         if (p.getPrice() <= 0) {
             throw new SQLException("The product has to been uper to 0");
         }
-        if (p.getStock() < 1){
-            throw new SQLException("The minimum stock is 1.");
+        if (p.getStock() < 0){
+            throw new SQLException("The stock cannot be negative.");
         }
 
         try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(sql);){
             ps.setString(1, p.getName());
             ps.setDouble(2, p.getPrice());
             ps.setInt(3, p.getStock());
-            ps.executeUpdate();
+            ps.setInt(4, p.getId());
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("No product found with id " + p.getId());
+            }
         }
     }
 
